@@ -22,7 +22,7 @@ jobs:
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.10.6
+          python-version: 3.12
       - name: ⚙️ Install dbt and Dependencies
         run: |
           # 1. Install prerequisites for the MS SQL Driver (unixODBC)
