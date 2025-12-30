@@ -1,0 +1,50 @@
+name: dbt CI/CD Pipeline - Football Analytics
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: null
+jobs:
+  dbt_ci_job:
+    runs-on: ubuntu-latest
+    env:
+      DBT_SERVER: ${{ secrets.DBT_SERVER }}
+      DBT_DATABASE: ${{ secrets.DBT_DATABASE }}
+      DBT_SCHEMA: ${{ secrets.DBT_SCHEMA }}
+      DBT_USER: ${{ secrets.DBT_USER }}
+      DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: ⚙️ Install dbt and Dependencies
+        run: |
+          # 1. Install the dbt adapter for SQL Server
+          pip install dbt-sqlserver
+          # 2. Install any packages listed in packages.yml
+          dbt deps
+      - name: 🛠️ Run dbt Build and Test
+        run: >
+          echo "Running dbt debug to confirm connection..."
+
+          dbt debug --target ci
+
+
+          echo "Running dbt build (runs, tests, seeds) on CI target..."
+
+          # The 'build' command is a shortcut for run, test, and seed operations.
+
+          # Alternatively, you can run: dbt seed && dbt run && dbt test
+
+          dbt build --target ci
+      - name: 🧹 Clean up
+        run: >
+          echo "Dbt run complete."
+
+          # Optional: Remove temporary files if needed, though runners are ephemeral.
