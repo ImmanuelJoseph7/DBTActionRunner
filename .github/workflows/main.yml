@@ -25,9 +25,21 @@ jobs:
           python-version: 3.10.6
       - name: ⚙️ Install dbt and Dependencies
         run: |
-          # 1. Install the dbt adapter for SQL Server
+          # 1. Install prerequisites for the MS SQL Driver (unixODBC)
+          sudo apt-get update
+          sudo apt-get install -y unixodbc unixodbc-dev
+          
+          # 2. Add Microsoft repositories to fetch the official driver
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          # Assuming Ubuntu 22.04 runner, adjust if using a different image
+          curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+
+          # 3. Update repos and install the ODBC Driver 18 (msodbcsql18)
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
+
+          # 4. Install dbt adapter and packages
           pip install dbt-sqlserver
-          # 2. Install any packages listed in packages.yml
           dbt deps
       - name: 🛠️ Run dbt Build and Test
         run: >
