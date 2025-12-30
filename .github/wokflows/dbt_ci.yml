@@ -1,0 +1,62 @@
+name: dbt CI/CD Pipeline - Football Analytics
+
+# 1. Triggers: When should this workflow run?
+on:
+  # Run on any push to the main branch
+  push:
+    branches:
+      - main
+  # Run on any Pull Request targeting the main branch (e.g., for testing changes)
+  pull_request:
+    branches:
+      - main
+  # Allows manual triggering from the GitHub Actions tab
+  workflow_dispatch:
+
+# The job that runs the dbt logic
+jobs:
+  dbt_ci_job:
+    # Use the latest Ubuntu runner
+    runs-on: ubuntu-latest
+    
+    # Define environment variables loaded from secrets for all steps in this job
+    env:
+      # Mapping GitHub Secrets to the environment variables used in profiles.yml
+      DBT_SERVER: ${{ secrets.DBT_SERVER }}
+      DBT_DATABASE: ${{ secrets.DBT_DATABASE }}
+      DBT_SCHEMA: ${{ secrets.DBT_SCHEMA }}
+      DBT_USER: ${{ secrets.DBT_USER }}
+      DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: ⚙️ Install dbt and Dependencies
+        run: |
+          # 1. Install the dbt adapter for SQL Server
+          pip install dbt-sqlserver
+          # 2. Install any packages listed in packages.yml
+          dbt deps
+
+      # 💡 Important: The dbt commands run in the environment where the secrets are mapped.
+      # dbt automatically finds the profiles.yml in the current working directory.
+      - name: 🛠️ Run dbt Build and Test
+        run: |
+          echo "Running dbt debug to confirm connection..."
+          dbt debug --target ci
+          
+          echo "Running dbt build (runs, tests, seeds) on CI target..."
+          # The 'build' command is a shortcut for run, test, and seed operations.
+          # Alternatively, you can run: dbt seed && dbt run && dbt test
+          dbt build --target ci
+          
+      - name: 🧹 Clean up
+        run: |
+          echo "Dbt run complete."
+          # Optional: Remove temporary files if needed, though runners are ephemeral.
