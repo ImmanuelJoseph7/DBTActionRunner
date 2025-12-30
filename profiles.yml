@@ -1,0 +1,18 @@
+# profiles.yml (SAFE to commit to GitHub)
+# The profile name:
+football_analytics:
+  target: ci
+
+  outputs:
+    ci:
+      type: sqlserver
+      driver: 'ODBC Driver 18 for SQL Server' # Adjust the version if necessary
+      
+      # Use environment variables (which will be populated by GitHub Secrets)
+      server: "{{ env_var('DBT_SERVER') }}" 
+      port: 1433
+      database: "{{ env_var('DBT_DATABASE') }}" 
+      schema: "{{ env_var('DBT_SCHEMA') }}" 
+      user: "{{ env_var('DBT_USER') }}" 
+      password: "{{ env_var('DBT_PASSWORD') }}" 
+      
