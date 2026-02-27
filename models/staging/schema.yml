@@ -1,1 +1,46 @@
 version: 2
+
+models:
+  - name: stg_goals_per_season
+    description: Player-level aggregated statistics per season including goals, assists, and minutes played
+    columns:
+      - name: season
+        description: Season identifier
+        tests:
+          - not_null
+      - name: name
+        description: Player name
+        tests:
+          - not_null
+      - name: team
+        description: Player's team identifier
+        tests:
+          - not_null
+      - name: assists
+        description: Total assists for the season
+      - name: goals
+        description: Total goals scored for the season
+      - name: MinutesPlayed
+        description: Total minutes played for the season
+    tests:
+      - unique:
+          column_name: "season || '-' || name || '-' || team"
+
+  - name: stg_goals_per_season_per_team
+    description: Team-level aggregated statistics per season including goals and assists
+    columns:
+      - name: season
+        description: Season identifier
+        tests:
+          - not_null
+      - name: team
+        description: Team identifier
+        tests:
+          - not_null
+      - name: assists
+        description: Total assists for the team in the season
+      - name: goals
+        description: Total goals scored by the team in the season
+    tests:
+      - unique:
+          column_name: "season || '-' || team"

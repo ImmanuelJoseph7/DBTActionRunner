@@ -19,8 +19,11 @@ clean-targets:
 
 require-dbt-version: [">=1.0.0", "<2.0.0"]
 
+on-run-end:
+  - "{{ log_run_results() }}"
+
 models:
-  jaffle_shop:
+  Football_Analytics:
       materialized: table
       staging:
         materialized: view
