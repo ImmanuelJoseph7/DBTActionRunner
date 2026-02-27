@@ -1,3 +1,5 @@
+{{ config(materialized='table') }}
+
 with stats as (
     select * from {{ source('pfdatalake', 'stats') }}
 ),
