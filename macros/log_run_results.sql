@@ -23,6 +23,22 @@
         
         -- Insert run results
         {% for result in results %}
+            {% set row_count = 'NULL' %}
+            
+            -- For successful models, try to get actual row count
+            {% if result.status == 'success' and result.node.resource_type == 'model' %}
+                {% set relation = result.node.relation_name %}
+                {% if relation %}
+                    {% set count_query %}
+                        SELECT COUNT(*) as row_count FROM {{ relation }}
+                    {% endset %}
+                    {% set count_result = run_query(count_query) %}
+                    {% if count_result %}
+                        {% set row_count = count_result.columns[0].values()[0] %}
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            
             {% set insert_sql %}
                 INSERT INTO {{ target.schema }}.dbt_run_results 
                 (invocation_id, run_started_at, model_name, status, execution_time, rows_affected, message)
@@ -32,7 +48,7 @@
                     '{{ result.node.unique_id }}',
                     '{{ result.status }}',
                     {{ result.execution_time }},
-                    {% if result.adapter_response.get('rows_affected') %}{{ result.adapter_response.rows_affected }}{% else %}NULL{% endif %},
+                    {{ row_count }},
                     '{{ result.message | replace("'", "''") }}'
                 )
             {% endset %}
