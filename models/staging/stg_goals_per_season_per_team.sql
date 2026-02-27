@@ -1,8 +1,22 @@
-with gpspt as
-(SELECT  s.season,  s.team, SUM(s.assists) AS assists, SUM(s.goals_scored) AS goals
-FROM   pfdatalake.stats AS s INNER JOIN
-             pfdatalake.teams AS t ON s.season = t.season AND s.opponent_team = t.id
-GROUP BY s.season, s.team
+with stats as (
+    select * from {{ source('pfdatalake', 'stats') }}
+),
+
+teams as (
+    select * from {{ source('pfdatalake', 'teams') }}
+),
+
+aggregated as (
+    select
+        s.season,
+        s.team,
+        sum(s.assists) as assists,
+        sum(s.goals_scored) as goals
+    from stats as s
+    inner join teams as t
+        on s.season = t.season
+        and s.opponent_team = t.id
+    group by s.season, s.team
 )
 
-select * from gpspt
+select * from aggregated

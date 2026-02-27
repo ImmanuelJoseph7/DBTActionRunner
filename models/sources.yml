@@ -1,0 +1,32 @@
+version: 2
+
+sources:
+  - name: pfdatalake
+    description: Premier Football data lake containing raw stats and team information
+    schema: pfdatalake
+    tables:
+      - name: stats
+        description: Player statistics including goals, assists, and minutes played
+        columns:
+          - name: season
+            description: Season identifier
+          - name: name
+            description: Player name
+          - name: team
+            description: Player's team identifier
+          - name: opponent_team
+            description: Opponent team identifier
+          - name: assists
+            description: Number of assists
+          - name: goals_scored
+            description: Number of goals scored
+          - name: minutes
+            description: Minutes played
+      
+      - name: teams
+        description: Team reference data
+        columns:
+          - name: id
+            description: Unique team identifier
+          - name: season
+            description: Season identifier
